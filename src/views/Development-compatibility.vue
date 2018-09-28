@@ -1,98 +1,68 @@
 <template>
     <div class="createWrap">
-        <h3 id="instant-prototyping"><a href="#instant-prototyping" aria-hidden="true" class="header-anchor">#</a>创建项目
+        <h3 id="instant-prototyping"><a href="#instant-prototyping" aria-hidden="true" class="header-anchor">#</a>浏览器兼容性
         </h3>
         <div class="section">
-            <h3 id="vue-create"><a href="#vue-create" aria-hidden="true" class="header-anchor">#</a>vue create</h3>
+            <h3 id="vue-create"><a href="#vue-create" aria-hidden="true" class="header-anchor">#</a>browserslist</h3>
             <div class="line"></div>
-            <p>要创建新项目，请运行：</p>
-            <div class="bg-dark codeWrap">
+            <p>您会注意到package.json中的browserslist字段（或单独的.browserslistrc文件），指定项目所针对的一系列浏览器。@ babel / preset-env和autoprefixer将使用此值自动确定需要转换的JavaScript功能以及所需的CSS供应商前缀。</p>
+            <p>请参阅 <a class="outLink" href="https://github.com/browserslist/browserslist" target="_blank">此处<i class="el-icon-question"></i></a> 了解如何指定浏览器范围。</p>
+           
+            <h3><a href=""></a>Polyfills</h3>
+            <div class="line"></div>
+            <p>默认的Vue CLI项目使用 <code>@ vue / babel-preset-app</code> ，它使用 <code>@ babel / preset-env</code> 和 <code>browserslist</code>配置来确定项目所需的Polyfill。</p>
+            <p>默认情况下，它将 <code>useBuiltIns：'usage'</code>传递给 <code>@ babel / preset-env</code>，它会根据源代码中使用的语言功能自动检测所需的polyfill。这样可确保最终捆绑包中仅包含最少量的polyfills。但是，这也意味着如果您的某个依赖项对polyfill有特定要求，默认情况下Babel将无法检测到它。</p>
+            <p>如果您的某个依赖项需要polyfill，您有几个选项：</p>
+            <ol>
+                <li>如果依赖项是在目标环境不支持的ES版本中编写的：将该依赖项添加到 <code>vue.config.js</code>中的 <code>transpileDependencies</code>选项。这将为该依赖性启用语法转换和基于使用情况的polyfill检测。</li>
+                <li>如果相关性发布ES5代码并明确列出所需的polyfill：您可以使用 <code>@ vue / babel-preset-app</code>的polyfills选项预先包含所需的polyfill请注意，默认情况下包含es6.promise，因为libs依赖Promise是很常见的。
+                    <div class="bg-dark codeWrap">
                         <pre>
                             <code>
-                                <p>vue create hello-world</p>
+// babel.config.js
+module.exports = {
+  presets: [
+    ['@vue/app', {
+      polyfills: [
+        'es6.promise',
+        'es6.symbol'
+      ]
+    }]
+  ]
+}
                             </code>
                         </pre>
-            </div>
-            <div class="bg-warning tipBox">
-                <h3>warning</h3>
-                <p>如果您使用带有minTTY的Git Bash在Windows上，则交互式提示将不起作用。您必须以winpty vue.cmd create hello-world启动该命令。</p>
-            </div>
-            <p>系统将提示您选择预设。您可以选择基本Babel + ESLint设置附带的默认预设，也可以选择“手动选择功能”以选择所需的功能。</p>
-            <div class="imgWrap">
-                <img src="../assets/1532166749243.jpg" alt="">
-            </div>
-            <p>默认设置非常适合快速创建新项目的原型，而手动设置提供了更多面向生产项目可能需要的选项。</p>
-            <div class="imgWrap">
-                <img src="../assets/1532167277961.jpg" alt="">
-            </div>
-            <p>如果您选择手动选择功能，则在提示的末尾您还可以选择将选择保存为预设，以便将来可以重复使用。我们将在下一节讨论预设和插件。</p>
-            <div class="bg-info tipBox">
-                <h3>~/.vuerc</h3>
-                <p>aved预设将存储在用户主目录中名为.vuerc的JSON文件中。如果要修改已保存的预设/选项，可以通过编辑此文件来执行此操作。</p>
-                <p>在项目创建过程中，您可能还会被提示选择首选包管理器，或使用淘宝npm注册表镜像来加快依赖安装。您的选择也将保存在〜/ .vuerc中。</p>
-            </div>
-            <p>vue create命令有许多选项，你可以通过运行来探索它们：</p>
-            <div class="bg-dark codeWrap">
-<pre>
-<code>
-vue create --help
-</code>
-</pre>
-            </div>
-            <div class="bg-dark codeWrap">
-                        <pre>
-<code>
-Usage: create [options] &lt;app-name&gt;
+                    </div>
+                </li>
+                <li>如果依赖项包含ES5代码，但使用ES6 +功能而未明确列出polyfill要求（例如Vuetify）：使用useBuiltIns：'entry'然后将import'@ babel / polyfill'添加到您的条目文件中。这将根据您的browserslist目标导入所有polyfill，这样您就不必再担心依赖性polyfill，但可能会增加一些未使用的polyfill的最终包大小。</li>
 
-create a new project powered by vue-cli-service
-
-Options:
-
--p, --preset &lt;presetName&gt;       Skip prompts and use saved or remote preset
--d, --default                   Skip prompts and use default preset
--i, --inlinePreset &lt;json&gt;       Skip prompts and use inline JSON string as preset
--m, --packageManager &lt;command&gt;  Use specified npm client when installing dependencies
--r, --registry &lt;url&gt;            Use specified npm registry when installing dependencies (only for npm)
--g, --git [message|false]       Force / skip git initialization, optionally specify initial commit message
--f, --force                     Overwrite target directory if it exists
--c, --clone                     Use git clone when fetching remote preset
--x, --proxy                     Use specified proxy when creating project
--h, --help                      output usage information
-</code>
-                        </pre>
-            </div>
+            </ol>
+            <p>有关详细信息，请参阅@ babel-preset / env docs。</p>
 
         </div>
         <div class="section">
-            <h3 id="using-the-ugi"><a href="#using-the-ugi" aria-hidden="true" class="header-anchor">#</a>UGI的使用</h3>
+            <h3 id="using-the-ugi"><a href="#using-the-ugi" aria-hidden="true" class="header-anchor">#</a>Modern Mode</h3>
             <div class="line"></div>
-            <p>您还可以使用vue ui命令的图形界面创建和管理项目： </p>
+            <p>使用Babel，我们可以利用ES2015 +中的所有最新语言功能，但这也意味着我们必须提供转换和polyfilled bundle以支持旧版浏览器。这些转换后的包通常比原始的本机ES2015 +代码更冗长，并且解析和运行速度也更慢。鉴于今天大多数现代浏览器都对原生ES2015提供了不错的支持，我们不得不向这些浏览器发送更重，效率更低的代码，因为我们必须支持旧版本。</p>
+            <p>Vue CLI提供“现代模式”来帮助您解决此问题。使用以下命令构建生产时：</p>
             <div class="bg-dark codeWrap">
                         <pre>
 <code>
-vue ui
+vue-cli-service build --modern
 </code>
                         </pre>
             </div>
+            <p>Vue CLI将生成两个版本的应用程序：一个针对支持ES模块的现代浏览器的现代软件包，以及一个针对不支持ES模块的旧版浏览器的旧版软件包。</p>
+            <p>但很酷的部分是没有特殊的部署要求。生成的HTML文件自动采用Phillip Walton的优秀帖子中讨论的技术：</p>
+            <ul>
+                <li>
+                    <p>现代捆绑包在支持它的浏览器中加载 <code>&lt;script type =“module” &gt;</code> ;它们也是使用 <code> &lt;link rel =“modulepreload”&gt;</code> 预先加载的。</p>
+                </li>
+                <li><p>旧版软件包加载了 <code>&lt;script nomodule&gt;</code> ，支持ES模块的浏览器会忽略它。</p></li>
+                <li><p>还会自动注入Safari 10中 <code>&lt;script nomodule&gt;</code> 的修复程序。</p></li>
+                <li><p>对于Hello World应用程序，现代捆绑包已经缩小了16％。在生产中，现代捆绑包通常会显着加快解析和评估速度，从而提高应用程序的加载性能。</p></li>
+            </ul>
 
-            <p>vue ui 上面的命令将打开一个带有GUI的浏览器窗口，该GUI将指导您完成项目创建过程</p>
-            <div class="imgWrap">
-                <img src="../assets/1532168389202.jpg" alt="">
-            </div>
-        </div>
-        <div class="section">
-            <h3 id="pull-2.x"><a href="#pull-2.x" aria-hidden="true" class="header-anchor">#</a>拉2.x模板（遗留）</h3>
-            <div class="line"></div>
-            <p>Vue CLI 3使用相同的vue二进制文件，因此它会覆盖Vue CLI 2（vue-cli）。如果您仍需要旧版vue init功能，则可以安装全局网桥：</p>
-            <div class="bg-dark codeWrap">
-                <pre>
-<code>
-<p>npm install -g @vue/cli-init</p>
-<p># vue init now works exactly the same as vue-cli@2.x</p>
-<p>vue init webpack my-project</p>
-</code>
-                </pre>
-            </div>
         </div>
 
 
@@ -117,10 +87,16 @@ vue ui
             margin-top: 30px;
             h3 {
                 text-align: left;
-                /*margin-bottom: 20px;*/
+                margin-top: 20px;
             }
             h4 {
                 margin: 50px 0 20px 0;
+            }
+            li{
+                line-height: 1.8em;
+                p{
+                    text-indent: 0;
+                }
             }
         }
 

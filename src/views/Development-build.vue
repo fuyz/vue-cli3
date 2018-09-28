@@ -1,100 +1,143 @@
 <template>
     <div class="createWrap">
-        <h3 id="instant-prototyping"><a href="#instant-prototyping" aria-hidden="true" class="header-anchor">#</a>环境变量和模式
-        </h3>
-        <p>您可以通过将以下文件放在项目根目录中来指定env变量</p>
-        <div class="bg-dark codeWrap">
-                        <pre>
-                            <code>
-.env                # loaded in all cases
-.env.local          # loaded in all cases, ignored by git
-.env.[mode]         # only loaded in specified mode
-.env.[mode].local   # only loaded in specified mode, ignored by git
-                            </code>
-                        </pre>
-        </div>
-        <p>env文件只包含环境变量的键=值对：</p>
-        <div class="bg-dark codeWrap">
-                        <pre>
-                            <code>
-FOO=bar
-VUE_APP_SECRET=secret
-                            </code>
-                        </pre>
-        </div>
-        <p>加载的变量将可用于所有vue-cli-service命令，插件和依赖项。</p>
+        <h2 id="instant-prototyping"><a href="#instant-prototyping" aria-hidden="true" class="header-anchor">#</a>Build
+            Targets</h2>
+        <p>运行vue-cli-service构建时，可以通过--target选项指定不同的构建目标。这允许您使用相同的代码库为不同的用例生成不同的构建。</p>
 
         <div class="section">
-            <h4>Modes</h4>
-            <p>模式是Vue CLI项目中的一个重要概念。默认情况下，Vue CLI项目中有三种模式：</p>
-            <ul>
-                <li>development is used by vue-cli-service serve</li>
-                <li>production is used by vue-cli-service build and vue-cli-service test:e2e</li>
-                <li>test is used by vue-cli-service test:unit</li>
-            </ul>
-            <p>请注意，模式与NODE_ENV不同，因为模式可以包含多个环境变量。也就是说，默认情况下，每种模式都会将NODE_ENV设置为相同的值 - 例如，NODE_ENV将在开发模式下设置为“development”。</p>
-            <p>您可以通过后缀.env文件来设置仅适用于特定模式的环境变量。例如，如果在项目根目录中创建名为.env.development的文件，则该文件中声明的变量将仅在开发模式下加载。</p>
-            <p>您可以通过传递--mode选项标志来覆盖用于命令的默认模式。例如，如果要在build命令中使用开发变量，请将其添加到package.json脚本中：</p>
-            <div class="bg-dark codeWrap">
-                        <pre>
-                            <code>
-"dev-build": "vue-cli-service build --mode development",
-
-                            </code>
-                        </pre>
-            </div>
-
-            <h4>Example: 分段 Mode</h4>
+            <h3>App</h3>
             <div class="line"></div>
-            <p>假设我们有一个带有以下.env文件的应用：</p>
-            <div class="bg-dark codeWrap">
-                        <pre>
-                            <code>
-VUE_APP_TITLE=My App
-                            </code>
-                        </pre>
-            </div>
-           <p>以下.env.staging文件：</p>
-            <div class="bg-dark codeWrap">
-                        <pre>
-                            <code>
-NODE_ENV=production
-VUE_APP_TITLE=My App (staging)
-                            </code>
-                        </pre>
-            </div>
+            <p>App是默认的构建目标。在这种模式下：</p>
             <ul>
-                <li>vue-cli-service build构建一个生产应用程序，加载.env，.env.production和.env.production.local（如果它们存在）;</li>
-                <li>vue-cli-service build --mode staging使用.env，.env.staging和.env.staging.local（如果它们存在）在分段模式下构建生产应用程序。</li>
+                <li>index.html包含资产和资源提示注入</li>
+                <li>供应商库拆分为单独的块以实现更好的缓存</li>
+                <li>10kb以下的静态资产被内联到JavaScript中</li>
+                <li>公共中的静态资产被复制到输出目录中</li>
             </ul>
-            <p>在这两种情况下，由于NODE_ENV，应用程序都构建为生产应用程序，但在暂存版本中，process.env.VUE_APP_TITLE将被其他值覆盖。 </p>
 
-
-            <h4>在客户端代码中使用Env变量</h4>
-            <p>只有以VUE_APP_开头的变量才会通过webpack.DefinePlugin静态嵌入到客户端软件包中。您可以在应用程序代码中访问它们：</p>
-            <div class="bg-dark codeWrap">
-                        <pre>
-                            <code>
-console.log(process.env.VUE_APP_SECRET)
-                            </code>
-                        </pre>
-            </div>
-            <p>在构建期间，process.env.VUE_APP_SECRET将替换为相应的值。在VUE_APP_SECRET = secret的情况下，它将被“secret”替换。</p>
-            <p>除了VUE_APP_ *变量之外，还有两个特殊变量在您的应用代码中始终可用：</p>
-            <ul>
-                <li>liNODE_ENV - 这将是“开发”，“生产”或“测试”之一，具体取决于应用程序运行的模式。 </li>
-                <li>BASE_URL - 这对应于vue.config.js中的baseUrl选项，是部署应用程序的基本路径。</li>
-            </ul>
-            <p>所有已解析的env变量都将在public / index.html中提供，如HTML-Interpolation中所述。</p>
+            <h3>Library</h3>
+            <div class="line"></div>
             <div class="bg-info tipBox">
-                <h3>Tip</h3>
-                <p>您可以在vue.config.js文件中计算env变量。它们仍然需要以VUE_APP_为前缀。这对于版本信息process.env.VUE_APP_VERSION = require（'./ package.json'）非常有用。</p>
+                <div >关于Vue依赖关系的注释</div>
+                <p>
+                    在lib模式下，Vue被外部化。这意味着即使您的代码导入了Vue，捆绑包也不会捆绑Vue。如果通过bundler使用lib，它将尝试通过bundler加载Vue作为依赖项;否则，它会回退到全局Vue变量。</p>
+            </div>
+            <p>您可以使用构建单个条目作为库</p>
+            <div class="codeWrap bg-dark">
+                <pre>
+                    <code>
+vue-cli-service build --target lib --name myLib [entry]
+
+File                     Size                     Gzipped
+
+dist/myLib.umd.min.js    13.28 kb                 8.42 kb
+dist/myLib.umd.js        20.95 kb                 10.22 kb
+dist/myLib.common.js     20.57 kb                 10.09 kb
+dist/myLib.css           0.33 kb                  0.23 kb
+                    </code>
+                </pre>
             </div>
 
-            <h4>仅限本地变量</h4>
+            <p>该条目可以是.js或.vue文件。如果未指定任何条目，则将使用src / App.vue。</p>
+            <p>lib构建输出： </p>
+            <ul>
+                <li>dist / myLib.common.js：用于通过捆绑包消费的CommonJS捆绑包（遗憾的是，webpack目前还不支持捆绑包的ES模块输出格式）</li>
+                <li>dist / myLib.umd.js：一种UMD包，可直接在浏览器或AMD加载器中使用</li>
+                <li>dist / myLib.umd.min.js：UMD版本的缩小版本。</li>
+                <li>dist / myLib.css：提取的CSS文件（可以通过在vue.config.js中设置css：{extract：false}强制内联）</li>
+            </ul>
+            <h4>Vue与JS / TS条目文件</h4>
+            <p>使用.vue文件作为条目时，库将直接公开Vue组件本身，因为该组件始终是默认导出。</p>
+            <p>但是，当您使用.js或.ts文件作为条目时，它可能包含命名导出，因此您的库将作为模块公开。这意味着您的库的默认导出必须在UMD构建中作为window.yourLib.default访问，或者作为const
+                myLib = require（'mylib'）访问。默认在CommonJS构建中。如果您没有任何已命名的导出并希望直接公开默认导出，则可以在vue.config.js中使用以下webpack配置：</p>
+            <div class="codeWrap bg-dark">
+                <pre>
+                    <code>
+module.exports = {
+  configureWebpack: {
+    output: {
+      libraryExport: 'default'
+    }
+  }
+}
+                    </code>
+                </pre>
+            </div>
+
+            <h3>Web Component</h3>
             <div class="line"></div>
-            <p>有时您可能有不应该提交到代码库的env变量，尤其是当您的项目托管在公共存储库中时。在这种情况下，您应该使用.env.local文件。默认情况下，.gitignore中会忽略本地env文件。</p>
-            <p>.local也可以附加到特定于模式的env文件，例如.env.development.local将在开发期间加载，并被git忽略。</p>
+            <div class="tipBox bg-info">
+                <div>兼容性说明 </div>
+                <p>Web组件模式不支持IE11及更低版本。更多细节</p>
+            </div>
+            <div class="tipBox bg-info">
+                <div>关于Vue依赖关系的注释 </div>
+                <p>在Web组件模式下，Vue被外部化。这意味着即使您的代码导入了Vue，捆绑包也不会捆绑Vue。该捆绑包将假设Vue在主机页面上可用作全局变量。</p>
+            </div>
+            <p>您可以使用构建单个条目作为Web组件</p>
+            <div class="codeWrap bg-dark">
+                <pre>
+                    <code>
+vue-cli-service build --target wc --name my-element [entry]
+                    </code>
+                </pre>
+            </div>
+            <p>请注意，该条目应为* .vue文件。 Vue CLI将自动将组件包装并注册为Web组件，并且不需要在main.js中自行完成。您可以将main.js用作演示应用程序，仅用于开发。</p>
+            <p>构建将生成一个单独的JavaScript文件（及其缩小版本），内嵌所有内容。该脚本包含在页面中时，会注册 my-element 自定义元素，该元素使用@ vue /
+                web-component-wrapper包装目标Vue组件。包装器自动代理属性，属性，事件和插槽。有关更多详细信息，请参阅@ vue / web-component-wrapper的文档。</p>
+            <p>请注意，捆绑包依赖于Vue在页面上全局可用。 此模式允许组件的使用者将Vue组件用作普通DOM元素</p>
+            <div class="codeWrap bg-dark">
+                <pre>
+                    <code>
+&lt; script src="https://unpkg.com/vue"&gt;&lt;/script&gt;
+&lt; script src="path/to/my-element.js"&gt;&lt;/script&gt;
+&lt;!-- use in plain HTML, or in any other framework --&gt;
+&lt; my-element&gt;&lt;/my-element &gt;
+                    </code>
+                </pre>
+            </div>
+            <h4>注册多个Web组件的捆绑包 </h4>
+            <p>构建Web组件包时，您还可以使用glob作为条目来定位多个组件：</p>
+            <div class="codeWrap bg-dark">
+                <pre>
+                    <code>
+vue-cli-service build --target wc --name foo 'src/components/*.vue'
+                    </code>
+                </pre>
+            </div>
+            <p>构建多个Web组件时， - name将用作前缀，自定义元素名称将从组件文件名中推断出来。例如，使用--name foo和名为HelloWorld.vue的组件，生成的自定义元素将注册为&lt;foo-hello-world&gt;。</p>
+
+
+            <h4>异步Web组件</h4>
+            <p>
+                当定位多个Web组件时，捆绑包可能会变得非常大，并且用户可能只使用捆绑包中注册的一些组件。异步Web组件模式生成一个代码拆分包，其中包含一个小的条目文件，该文件提供所有组件之间的共享运行时，并预先注册所有自定义元素。然后，只有在页面上使用相应自定义元素的实例时，才会按需提取组件的实际实现：</p>
+            <div class="codeWrap bg-dark">
+                <pre>
+                    <code>
+vue-cli-service build --target wc-async --name foo 'src/components/*.vue'
+
+File                Size                        Gzipped
+
+dist/foo.0.min.js    12.80 kb                    8.09 kb
+dist/foo.min.js      7.45 kb                     3.17 kb
+dist/foo.1.min.js    2.91 kb                     1.02 kb
+dist/foo.js          22.51 kb                    6.67 kb
+dist/foo.0.js        17.27 kb                    8.83 kb
+dist/foo.1.js        5.24 kb                     1.64 kb
+                    </code>
+                </pre>
+            </div>
+            <p>现在在页面上，用户只需要包含Vue和条目文件：</p>
+            <div class="codeWrap bg-dark">
+                <pre>
+                    <code>
+&lt;script src="https://unpkg.com/vue"&gt;&lt;/script&gt;
+&lt;script src="path/to/foo.min.js"&gt;&lt;/script&gt;
+&lt;!-- foo-one's implementation chunk is auto fetched when it's used --&gt;
+&lt;foo-one>&gt;&lt;/foo-one&gt;
+                    </code>
+                </pre>
+            </div>
 
         </div>
 

@@ -1,51 +1,100 @@
 <template>
-    <div class="installWrap">
-        <h3 id="instant-prototyping"><a href="#instant-prototyping" aria-hidden="true" class="header-anchor">#</a>即时原型</h3>
-        <!--<div class="bg-danger tipBox">-->
-            <!--<h3>warning</h3>-->
-            <!--<span>包名称从vue-cli更改为@ vue / cli。如果您在全局安装了以前的vue-cli（1.x或2.x）软件包，则需要先使用npm uninstall vue-cli -g或yarn global remove vue-cli将其卸载</span>-->
-        <!--</div>-->
-        <!--<div class="bg-info tipBox">-->
-            <!--<h3>节点版本要求</h3>-->
-            <!--<span>Vue CLI需要Node.js版本8.9或更高版本（建议使用8.11.0+）。您可以使用nvm或nvm-windows在同一台计算机上管理多个版本的Node。</span>-->
-        <!--</div>-->
+    <div class="createWrap">
+        <h3 id="instant-prototyping"><a href="#instant-prototyping" aria-hidden="true" class="header-anchor">#</a>创建项目
+        </h3>
         <div class="section">
-            <p>您可以使用vue serve和vue build命令对单个 <code>* .vue</code> 文件进行原型设计，但是它们需要首先安装一个额外的全局插件：</p>
+            <h3 id="vue-create"><a href="#vue-create" aria-hidden="true" class="header-anchor">#</a>vue create</h3>
+            <div class="line"></div>
+            <p>要创建新项目，请运行：</p>
             <div class="bg-dark codeWrap">
                         <pre>
                             <code>
-                                <p>npm install -g @vue/cli-service-global</p>
+vue create hello-world
                             </code>
                         </pre>
             </div>
-            <p><code>vue serve</code>的缺点是它依赖于全局安装的依赖项，这些依赖项可能在不同的机器上不一致。因此，这仅建议用于快速原型设计。</p>
-            <h4>vue serve</h4>
+            <div class="bg-warning tipBox">
+                <h3>warning</h3>
+                <p>如果您使用带有minTTY的Git Bash在Windows上，则交互式提示将不起作用。您必须以winpty vue.cmd create hello-world启动该命令。</p>
+            </div>
+            <p>系统将提示您选择预设。您可以选择基本Babel + ESLint设置附带的默认预设，也可以选择“手动选择功能”以选择所需的功能。</p>
+            <div class="imgWrap">
+                <img src="../assets/1532166749243.jpg" alt="">
+            </div>
+            <p>默认设置非常适合快速创建新项目的原型，而手动设置提供了更多面向生产项目可能需要的选项。</p>
+            <div class="imgWrap">
+                <img src="../assets/1532167277961.jpg" alt="">
+            </div>
+            <p>如果您选择手动选择功能，则在提示的末尾您还可以选择将选择保存为预设，以便将来可以重复使用。我们将在下一节讨论预设和插件。</p>
+            <div class="bg-info tipBox">
+                <h3>~/.vuerc</h3>
+                <p>aved预设将存储在用户主目录中名为.vuerc的JSON文件中。如果要修改已保存的预设/选项，可以通过编辑此文件来执行此操作。</p>
+                <p>在项目创建过程中，您可能还会被提示选择首选包管理器，或使用淘宝npm注册表镜像来加快依赖安装。您的选择也将保存在〜/ .vuerc中。</p>
+            </div>
+            <p><code>vue create</code>命令有许多选项，你可以通过运行来探索它们：</p>
+            <div class="bg-dark codeWrap">
+<pre>
+<code>
+vue create --help
+</code>
+</pre>
+            </div>
             <div class="bg-dark codeWrap">
                         <pre>
-                            <code>
-                                <p>vue --version</p>
-                                <p>Usage: serve [options] [entry]</p>
-                                <p>serve  a  .js or .vue file in development mode with zero config</p>
-                                <p>Options:</p>
-                                <p>-o, --open  Open browser</p>
-                                <p>-c, --copy  Copy local url to clipboard</p>
-                                <p>-h, --help  output usage information</p>
-                            </code>
-                        </pre>
-            </div>
-            <p>然后在包含<code>App.vue</code>文件的目录中运行：</p>
-            <p><code>vue serve</code>使用与创建的项目相同的默认设置（webpack，babel，postcss和eslint）</p>
-            <p>vue创造。它会自动推断当前目录中的条目文件 - 该条目可以是其中之一</p>
-            <p><code>main.js</code>，<code>index.js</code>，<code>App.vue</code>或<code>app.vue</code>。您还可以显式指定条目文件：</p>
-            <div class="bg-dark codeWrap">
-                        <pre>
-                            <code>
-                                <p>vue serve MyComponent.vue</p>
-                            </code>
-                        </pre>
-            </div>
-            <p>如果需要，您还可以提供 <code>index.html</code>，<code>package.json</code>，安装和使用本地依赖项，甚至可以使用相应的配置文件配置babel，postcss和eslint</p>
+<code>
+Usage: create [options] &lt;app-name&gt;
 
+create a new project powered by vue-cli-service
+
+Options:
+
+-p, --preset &lt;presetName&gt;       Skip prompts and use saved or remote preset
+-d, --default                   Skip prompts and use default preset
+-i, --inlinePreset &lt;json&gt;       Skip prompts and use inline JSON string as preset
+-m, --packageManager &lt;command&gt;  Use specified npm client when installing dependencies
+-r, --registry &lt;url&gt;            Use specified npm registry when installing dependencies (only for npm)
+-g, --git [message|false]       Force / skip git initialization, optionally specify initial commit message
+-f, --force                     Overwrite target directory if it exists
+-c, --clone                     Use git clone when fetching remote preset
+-x, --proxy                     Use specified proxy when creating project
+-h, --help                      output usage information
+</code>
+                        </pre>
+            </div>
+
+        </div>
+        <div class="section">
+            <h3 id="using-the-ugi"><a href="#using-the-ugi" aria-hidden="true" class="header-anchor">#</a>UGI的使用</h3>
+            <div class="line"></div>
+            <p>您还可以使用 <code>vue ui</code>命令的图形界面创建和管理项目： </p>
+            <div class="bg-dark codeWrap">
+                        <pre>
+<code>
+vue ui
+</code>
+                        </pre>
+            </div>
+
+            <p> <code>vue ui</code> 上面的命令将打开一个带有GUI的浏览器窗口，该GUI将指导您完成项目创建过程</p>
+            <div class="imgWrap">
+                <img src="../assets/1532168389202.jpg" alt="">
+            </div>
+        </div>
+        <div class="section">
+            <h3 id="pull-2.x"><a href="#pull-2.x" aria-hidden="true" class="header-anchor">#</a>拉2.x模板（遗留）</h3>
+            <div class="line"></div>
+            <p>Vue CLI 3使用相同的vue二进制文件，因此它会覆盖Vue CLI 2（vue-cli）。如果您仍需要旧版vue init功能，则可以安装全局网桥：</p>
+            <div class="bg-dark codeWrap">
+                <pre>
+<code>
+npm install -g @vue/cli-init
+
+# vue init now works exactly the same as vue-cli@2.x
+
+vue init webpack my-project
+</code>
+                </pre>
+            </div>
         </div>
 
 
@@ -62,18 +111,10 @@
     }
 </script>
 <style scoped lang="scss">
-    .installWrap {
+    .createWrap {
+        width: 800px;
+        margin: 0 auto;
         padding: 0 100px;
-        .section {
-            margin-top: 50px;
-            h3 {
-                text-align: left;
-                /*margin-bottom: 20px;*/
-            }
-            h4 {
-                margin: 50px 0 20px 0;
-            }
-        }
 
     }
 </style>

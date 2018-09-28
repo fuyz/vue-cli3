@@ -1,67 +1,155 @@
 <template>
     <div class="createWrap">
-        <h3 id="instant-prototyping"><a href="#instant-prototyping" aria-hidden="true" class="header-anchor">#</a>浏览器兼容性
+        <h3 id="instant-prototyping"><a href="#instant-prototyping" aria-hidden="true" class="header-anchor">#</a>HTML和静态资源
         </h3>
         <div class="section">
-            <h3 id="vue-create"><a href="#vue-create" aria-hidden="true" class="header-anchor">#</a>browserslist</h3>
+            <h3 >HTML</h3>
             <div class="line"></div>
-            <p>您会注意到package.json中的browserslist字段（或单独的.browserslistrc文件），指定项目所针对的一系列浏览器。@ babel / preset-env和autoprefixer将使用此值自动确定需要转换的JavaScript功能以及所需的CSS供应商前缀。</p>
-            <p>请参阅 <a class="outLink" href="https://github.com/browserslist/browserslist" target="_blank">此处<i class="el-icon-question"></i></a> 了解如何指定浏览器范围。</p>
-           
-            <h3><a href=""></a>Polyfills</h3>
+            <h4>The Index File</h4>
+            <p><code>public / index.html</code>文件是一个将使用 <code>html-webpack-plugin</code>处理的模板。在构建期间，将自动注入资产链接。此外，Vue
+                CLI还会自动注入资源提示（预加载/预取），清单/图标链接（使用PWA插件时）以及构建期间生成的JavaScript和CSS文件的资产链接</p>
+            <h4>插值</h4>
+            <p>由于索引文件用作模板，因此您可以使用lodash模板语法在其中插入值：</p>
+            <ul>
+                <li>非转义插值： <code>&lt;％= VALUE％&gt;</code>;</li>
+                <li>HTML转义插值：<code>&lt;％ - VALUE％&gt;</code>;</li>
+                <li>JavaScript控制流：<code>&lt;％expression％&gt;</code>。</li>
+            </ul>
+            <p>除了html-webpack-plugin公开的默认值之外，所有客户端env变量也可以直接使用。例如，要使用BASE_URL值：</p>
+            <div class="bg-dark codeWrap">
+                        <pre>
+                            <code>
+&lt;link rel="icon" href="&lt;%= BASE_URL %&gt;favicon.ico" &gt;
+                            </code>
+                        </pre>
+            </div>
+            <p>也可以看看 <a class="outLink" href="">baseUrl</a></p>
+
+            <h4>预载</h4>
+            <p><code>&lt;link rel =“prefetch” &gl; </code> 是一种资源提示，它告诉浏览器在页面加载完成后，在浏览器的空闲时间内预取用户可能在不久的将来访问的内容。</p>
+            <p>默认情况下，Vue CLI应用程序将自动为异步块生成的所有JavaScript文件生成预取提示（通过动态导入（）进行按需代码拆分）。</p>
+            <p>提示是使用@ vue / preload-webpack-plugin注入的，可以通过chainWebpack修改/删除为config.plugin（'prefetch'）。</p>
+
+            <div class="bg-dark codeWrap">
+                        <pre>
+<code>
+// vue.config.js
+module.exports = {
+  chainWebpack: config => {
+    // remove the prefetch plugin
+    config.plugins.delete('prefetch')
+
+    // or:
+    // modify its options:
+    config.plugin('prefetch').tap(options => {
+      options.fileBlackList.push([/myasyncRoute(.)+?\.js$/])
+      return options
+    })
+  }
+}
+</code>
+                        </pre>
+            </div>
+
+            <div class="tipBox bg-info">
+                <h3>Tip</h3>
+                <p>预取链接将消耗带宽。如果您有一个包含许多异步块的大型应用程序，并且您的用户主要是移动设备，因此可以识别带宽，您可能需要禁用预取链接。</p>
+            </div>
+
+            <h4>构建多页面应用程序</h4>
+            <p>并非每个应用都必须是SPA。 Vue CLI支持使用vue.config.js中的pages选项构建多页面应用程序。构建的应用程序将有效地共享多个条目之间的公共块，以获得最佳的加载性能。</p>
+
+            <h3>静态资产处理</h3>
             <div class="line"></div>
-            <p>默认的Vue CLI项目使用 <code>@ vue / babel-preset-app</code> ，它使用 <code>@ babel / preset-env</code> 和 <code>browserslist</code>配置来确定项目所需的Polyfill。</p>
-            <p>默认情况下，它将 <code>useBuiltIns：'usage'</code>传递给 <code>@ babel / preset-env</code>，它会根据源代码中使用的语言功能自动检测所需的polyfill。这样可确保最终捆绑包中仅包含最少量的polyfills。但是，这也意味着如果您的某个依赖项对polyfill有特定要求，默认情况下Babel将无法检测到它。</p>
-            <p>如果您的某个依赖项需要polyfill，您有几个选项：</p>
-            <ol>
-                <li>如果依赖项是在目标环境不支持的ES版本中编写的：将该依赖项添加到 <code>vue.config.js</code>中的 <code>transpileDependencies</code>选项。这将为该依赖性启用语法转换和基于使用情况的polyfill检测。</li>
-                <li>如果相关性发布ES5代码并明确列出所需的polyfill：您可以使用 <code>@ vue / babel-preset-app</code>的polyfills选项预先包含所需的polyfill请注意，默认情况下包含es6.promise，因为libs依赖Promise是很常见的。
+            <p>静态资产可以通过两种不同的方式处理： </p>
+            <ul>
+                <li>用JavaScript导入或通过相对路径在模板/ CSS中引用。此类引用将由webpack处理。</li>
+                <li>放置在公共目录中并通过绝对路径引用。这些资产将被复制，而不是通过webpack。</li>
+            </ul>
+            <h4>相对路径导入</h4>
+            <p>当您使用JavaScript，CSS或* .vue文件中的相对路径（必须以 . 开头）引用静态资产时，该资产将包含在webpack的依赖关系图中。在此编译过程中，所有资产URL（例如 <code>&lt;img
+                src =“...”&gt;，background：url（...）</code>和CSS <code>@import</code>都将解析为模块依赖项。</p>
+            <p>例如，<code>url（./ image.png）</code>将被翻译为<code>require（'./ image.png'）</code>，并且</p>
+            <div class="bg-dark codeWrap">
+                        <pre>
+                            <code>
+&lt;img src="./image.png"&gl;
+                            </code>
+                        </pre>
+            </div>
+            <p>将编译成：</p>
+            <div class="bg-dark codeWrap">
+                        <pre>
+                            <code>
+h('img', { attrs: { src: require('./image.png') }})
+                            </code>
+                        </pre>
+            </div>
+            <p>在内部，我们使用文件加载器来确定具有版本哈希值和正确公共基本路径的最终文件位置，并使用url-loader有条件地内联小于10kb的资源，从而减少HTTP请求的数量。</p>
+            <h4>网址转换规则</h4>
+            <ul>
+                <li>如果URL是绝对路径（例如/images/foo.png），它将按原样保留。</li>
+                <li>如果URL以 . 开头，则将其解释为相对模块请求，并根据文件系统上的文件夹结构进行解析。</li>
+                <li>如果URL以〜开头，则将其后的任何内容解释为模块请求。这意味着您甚至可以引用节点模块内的资产：
                     <div class="bg-dark codeWrap">
                         <pre>
                             <code>
-// babel.config.js
-module.exports = {
-  presets: [
-    ['@vue/app', {
-      polyfills: [
-        'es6.promise',
-        'es6.symbol'
-      ]
-    }]
-  ]
-}
+&lt;img src="~/some-npm-package/foo.png"&gl;
                             </code>
                         </pre>
                     </div>
                 </li>
-                <li>如果依赖项包含ES5代码，但使用ES6 +功能而未明确列出polyfill要求（例如Vuetify）：使用useBuiltIns：'entry'然后将import'@ babel / polyfill'添加到您的条目文件中。这将根据您的browserslist目标导入所有polyfill，这样您就不必再担心依赖性polyfill，但可能会增加一些未使用的polyfill的最终包大小。</li>
-
-            </ol>
-            <p>有关详细信息，请参阅@ babel-preset / env docs。</p>
-
-        </div>
-        <div class="section">
-            <h3 id="using-the-ugi"><a href="#using-the-ugi" aria-hidden="true" class="header-anchor">#</a>Modern Mode</h3>
-            <div class="line"></div>
-            <p>使用Babel，我们可以利用ES2015 +中的所有最新语言功能，但这也意味着我们必须提供转换和polyfilled bundle以支持旧版浏览器。这些转换后的包通常比原始的本机ES2015 +代码更冗长，并且解析和运行速度也更慢。鉴于今天大多数现代浏览器都对原生ES2015提供了不错的支持，我们不得不向这些浏览器发送更重，效率更低的代码，因为我们必须支持旧版本。</p>
-            <p>Vue CLI提供“现代模式”来帮助您解决此问题。使用以下命令构建生产时：</p>
-            <div class="bg-dark codeWrap">
-                        <pre>
-<code>
-vue-cli-service build --modern
-</code>
-                        </pre>
-            </div>
-            <p>Vue CLI将生成两个版本的应用程序：一个针对支持ES模块的现代浏览器的现代软件包，以及一个针对不支持ES模块的旧版浏览器的旧版软件包。</p>
-            <p>但很酷的部分是没有特殊的部署要求。生成的HTML文件自动采用Phillip Walton的优秀帖子中讨论的技术：</p>
-            <ul>
-                <li>
-                    <p>现代捆绑包在支持它的浏览器中加载 <code>&lt;script type =“module” &gt;</code> ;它们也是使用 <code> &lt;link rel =“modulepreload”&gt;</code> 预先加载的。</p>
-                </li>
-                <li><p>旧版软件包加载了 <code>&lt;script nomodule&gt;</code> ，支持ES模块的浏览器会忽略它。</p></li>
-                <li><p>还会自动注入Safari 10中 <code>&lt;script nomodule&gt;</code> 的修复程序。</p></li>
-                <li><p>对于Hello World应用程序，现代捆绑包已经缩小了16％。在生产中，现代捆绑包通常会显着加快解析和评估速度，从而提高应用程序的加载性能。</p></li>
+                <li>如果URL以@开头，则它也被解释为模块请求。这很有用，因为Vue CLI默认将@别名为 <code>&lt;projectRoot&gl;/src</code>。</li>
             </ul>
+            <h4>公共文件夹</h4>
+            <p>放置在公用文件夹中的任何静态资产都将被复制，而不是通过webpack。您需要使用绝对路径引用它们。</p>
+            <p>请注意，我们建议将资产作为模块依赖关系图的一部分导入，以便它们通过webpack获得以下好处：</p>
+            <ul>
+                <li>脚本和样式表被缩小并捆绑在一起以避免额外的网络请求。</li>
+                <li>缺少文件会导致编译错误，而不是用户的404错误。</li>
+                <li>结果文件名包含内容哈希，因此您无需担心浏览器缓存旧版本。</li>
+            </ul>
+            <p>公共目录作为转义填充提供，当您通过绝对路径引用它时，您需要考虑应用程序的部署位置。如果您的应用未部署在域的根目录，则需要在URL前添加baseUrl：</p>
+            <ul>
+                <li>在public / index.html或html-webpack-plugin用作模板的其他HTML文件中，您需要在链接前加上 <code>&lt;％= BASE_URL％&gl;</code>：
+                    <div class="bg-dark codeWrap">
+                        <pre>
+                            <code>
+&lt;link rel="icon" href="&lt;%= BASE_URL %&gt;favicon.ico"&gt;
+                            </code>
+                        </pre>
+                    </div>
+                </li>
+                <li>在模板中，您需要先将基本URL传递给组件：
+                    <div class="bg-dark codeWrap">
+                        <pre>
+                            <code>
+data () {
+  return {
+    baseUrl: process.env.BASE_URL
+  }
+}
+                            </code>
+                        </pre>
+                    </div>
+                    <p>然后：</p>
+                    <div class="bg-dark codeWrap">
+                        <pre>
+                            <code>
+&lt;img :src="`${baseUrl}my-image.png`" &gl;
+                            </code>
+                        </pre>
+                    </div>
+                </li>
+            </ul>
+
+            <h4>何时使用公用文件夹</h4>
+            <ul>
+                <li>您需要在构建输出中具有特定名称的文件。  </li>
+                <li>您有数千个图像，需要动态引用它们的路径。</li>
+                <li>某些库可能与Webpack不兼容，您没有其他选择，只能将其包含为 <code>&lt;script&gt;</code> 标记。</li>
+            </ul>
+
 
         </div>
 
@@ -90,11 +178,11 @@ vue-cli-service build --modern
                 margin-top: 20px;
             }
             h4 {
-                margin: 50px 0 20px 0;
+                margin: 30px 0 10px 0;
             }
-            li{
+            li {
                 line-height: 1.8em;
-                p{
+                p {
                     text-indent: 0;
                 }
             }

@@ -1,7 +1,11 @@
 <template>
   <div class="home">
-    <img src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <div class="logoWrap" >
+      <img src="../assets/logo.png">
+    </div>
+    <HelloWorld msg="Vue Cli 3"/>
+
+
   </div>
 </template>
 
@@ -16,3 +20,10 @@ export default {
   }
 }
 </script>
+<style scoped lang="scss">
+  .logoWrap{
+    text-align: center;
+    margin-top: 50px;
+  }
+
+</style>
